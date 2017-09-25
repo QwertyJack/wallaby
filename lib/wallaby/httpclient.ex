@@ -29,13 +29,15 @@ defmodule Wallaby.HTTPClient do
   end
 
   defp make_request(method, url, body, retry_count \\ 0)
-  defp make_request(_, _, _, 5), do: raise "Wallaby had an internal issue with HTTPoison"
+  #defp make_request(_, _, _, 5), do: raise "Wallaby had an internal issue with HTTPoison"
   defp make_request(method, url, body, retry_count) do
     method
     |> HTTPoison.request(url, body, headers(), request_opts())
     |> handle_response
     |> case do
          {:error, :httpoison} ->
+           :timer.sleep(500 * retry_count)
+           require Logger; Logger.debug "Wallaby HTTP failed, retrying ... #{retry_count}"
            make_request(method, url, body, retry_count + 1)
          result ->
            result
@@ -45,6 +47,7 @@ defmodule Wallaby.HTTPClient do
   defp handle_response(resp) do
     case resp do
       {:error, %HTTPoison.Error{}} ->
+        require Logger; Logger.debug "HTTPoion error: #{reason}"
         {:error, :httpoison}
 
       {:ok, %HTTPoison.Response{status_code: 204}} ->
