@@ -46,7 +46,7 @@ defmodule Wallaby.HTTPClient do
 
   defp handle_response(resp) do
     case resp do
-      {:error, %HTTPoison.Error{}} ->
+      {:error, %HTTPoison.Error{reason: reason}} ->
         require Logger; Logger.debug "HTTPoion error: #{reason}"
         {:error, :httpoison}
 
