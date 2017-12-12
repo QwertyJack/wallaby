@@ -5,7 +5,9 @@ defmodule Wallaby.Experimental.Chrome.Logger do
 
   def parse_log(%{"level" => "SEVERE", "source" => "javascript", "message" => msg}) do
     if Wallaby.js_errors? do
-      raise Wallaby.JSError, msg
+      #raise Wallaby.JSError, msg
+      require Logger
+      Logger.error "Chrome JSError: #{msg}"
     end
   end
 

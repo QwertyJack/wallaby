@@ -59,7 +59,7 @@ defmodule Wallaby.Experimental.Chrome do
                                     &WebdriverClient.create_session/2)
     user_agent = user_agent()
                  |> Metadata.append(opts[:metadata])
-    capabilities = capabilities(user_agent: user_agent)
+    capabilities = capabilities(user_agent: user_agent, proxy: opts[:proxy])
 
     with {:ok, response} <- create_session_fn.(base_url, capabilities) do
       id = response["sessionId"]
@@ -206,10 +206,14 @@ defmodule Wallaby.Experimental.Chrome do
     default_chrome_args()
     |> Enum.concat(headless_args())
     |> Enum.concat(user_agent_arg(opts[:user_agent]))
+    |> Enum.concat(proxy_arg(opts[:proxy]))
   end
 
   defp user_agent_arg(nil), do: []
   defp user_agent_arg(ua), do: ["--user-agent=#{ua}"]
+
+  defp proxy_arg(nil), do: []
+  defp proxy_arg(proxy_str), do: ["--proxy-server=#{proxy_str}"]
 
   defp headless? do
     :wallaby
